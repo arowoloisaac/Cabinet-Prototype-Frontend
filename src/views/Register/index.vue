@@ -1,0 +1,277 @@
+<script setup>
+import {ref, watch} from 'vue';
+import router from "@/router";
+import { ElMessage } from "element-plus";
+import 'element-plus/theme-chalk/el-message.css';
+import { ShowFacultyApi } from '@/apis/Faculty';
+import { ShowGroupApi } from '@/apis/Group';
+import { ShowDirectionApi } from '@/apis/Direction';
+
+const form = ref({
+  name: '',
+  birthdate: '',
+  email: '',
+  phone: '',
+  avatar: '',
+  usertype: [],
+  faculty: '',
+  direction: '',
+  group: ''
+});
+
+const rules = {
+  name: [{ required: true, message: 'Name is required', trigger: 'blur' }],
+  birthdate: [{ required: true, message: 'Birthdate is required', trigger: 'change' }],
+  email: [
+    { required: true, message: 'Email is required', trigger: 'blur' },
+    { type: 'email', message: 'Email is invalid', trigger: 'blur' }
+  ],
+  phone: [
+    { required: true, message: 'Phone number is required', trigger: 'blur' },
+    { pattern: /^[0-9]+$/, message: 'Phone must be numbers only', trigger: 'blur' }
+  ],
+  avatar: [{ required: true, message: 'Avatar is required', trigger: 'blur' }],
+  usertype: [{ required: true, message: 'User type is required', trigger: 'change' }],
+  faculty: [{ required: true, message: 'Faculty is required', trigger: 'change' }],
+  direction: [{ required: true, message: 'Direction is required', trigger: 'change' }],
+  group: [{ required: true, message: 'Group is required', trigger: 'change' }]
+};
+
+const formRef = ref(null);
+
+const facultyOptions = ref([]);
+const directionOptions = ref([]);
+const groupOptions = ref([]);
+
+// get Faculty 
+const loadFaculty = async () => {
+  try {
+    const response = await ShowFacultyApi();
+    facultyOptions.value = response;
+  } catch (error) {
+    console.error('Failed to fetch faculty data:', error);
+  }
+};
+
+// get Direction
+const loadDirection = async (facultyId) => {
+  try {
+    const response = await ShowDirectionApi(facultyId);
+    directionOptions.value = response;
+  } catch (error) {
+    console.error('Failed to fetch direction data:', error);
+  }
+};
+
+// get Group
+const loadGroup = async (directionId) => {
+  try {
+    const response = await ShowGroupApi(directionId);
+    groupOptions.value = response;
+  } catch (error) {
+    console.error('Failed to fetch group data:', error);
+  }
+};
+
+// Monitor changes in Faculty, clear Direction and Group and load new Direction
+watch(
+  () => form.value.faculty,
+  (newValue) => {
+    form.value.direction = '';
+    form.value.group = '';
+    directionOptions.value = [];
+    groupOptions.value = [];
+    if (newValue) {
+      loadDirection(newValue);
+    }
+  }
+);
+
+// Monitor Direction changes, clear Groups and load new Groups
+watch(
+  () => form.value.direction,
+  (newValue) => {
+    form.value.group = '';
+    groupOptions.value = [];
+    if (newValue) {
+      loadGroup(newValue);
+    }
+  }
+);
+
+loadFaculty();
+
+</script>
+
+
+<template>
+    <div>
+      <section class="login-section">
+        <div class="wrapper">
+          <nav>
+            <a href="javascript:;">Registration</a>
+          </nav>
+          <div class="account-box">
+            <div class="form">
+              <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
+                <el-form-item label="Name" prop="name">
+                  <el-input v-model="form.name" placeholder="Enter your name" />
+                </el-form-item>
+                <el-form-item label="Birthdate" prop="birthdate">
+                  <el-date-picker
+                    v-model="form.birthdate"
+                    type="date"
+                    placeholder="Select your birthdate"
+                    style="width: 100%;"
+                  />
+                </el-form-item>
+                <el-form-item label="E-mail" prop="email">
+                  <el-input v-model="form.email" placeholder="Enter your email" />
+                </el-form-item>
+                <el-form-item label="Phone" prop="phone">
+                  <el-input v-model="form.phone" placeholder="Enter your phone number" />
+                </el-form-item>
+                <el-form-item label="Avatar" prop="avatar">
+                  <el-input v-model="form.phone" placeholder="Enter your avatar url" />
+                </el-form-item>
+                <el-form-item label="User Type" prop="usertype">
+                    <el-checkbox-group v-model="form.usertype">
+                      <el-checkbox label="Student">Student</el-checkbox>
+                      <el-checkbox label="Teacher">Teacher</el-checkbox>
+                    </el-checkbox-group>
+                  </el-form-item>
+                  <el-form-item label="Faculty" prop="faculty">
+                    <el-select v-model="form.faculty" placeholder="Select your faculty">
+                      <el-option
+                        v-for="faculty in facultyOptions"
+                        :key="faculty.facultyId"
+                        :label="faculty.name"
+                        :value="faculty.facultyId"
+                        :debug="faculty"
+                      />
+                    </el-select>
+                  </el-form-item>
+                  <el-form-item label="Direction" prop="direction">
+                    <el-select v-model="form.direction" placeholder="Select your direction">
+                      <el-option
+                        v-for="direction in directionOptions"
+                        :key="direction.directionId"
+                        :label="direction.name"
+                        :value="direction.directionId"
+                      />
+                    </el-select>
+                  </el-form-item>
+                  <el-form-item label="Group" prop="group">
+                    <el-select v-model="form.group" placeholder="Select your group">
+                      <el-option
+                        v-for="group in groupOptions"
+                        :key="group.groupId"
+                        :label="group.groupNumber"
+                        :value="group.groupId"
+                      />
+                    </el-select>
+                  </el-form-item>
+                <div class="login-actions">
+                    <el-button size="large" class="subBtn" @click="doLogin">Register</el-button>
+                </div>
+              </el-form>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </template>
+
+<style scoped lang="scss">
+.login-section {
+  position: relative;
+
+  .wrapper {
+    width: 600px;
+    position: absolute;
+    left: 25%;
+    top: 54px;
+    transform: translate3d(100px, 0, 0);
+
+    nav {
+      font-size: 14px;
+      height: 55px;
+      margin-bottom: 20px;
+      display: flex;
+      padding: 0 40px;
+      text-align: right;
+      align-items: center;
+
+      a {
+        flex: 1;
+        line-height: 1;
+        display: inline-block;
+        font-size: 30px;
+        position: relative;
+        text-align: center;
+        font-weight: 1000;
+      }
+    }
+  }
+}
+
+.account-box {
+  .form {
+    padding: 0 20px 20px 20px;
+
+    .el-form-item {
+      margin-bottom: 20px;
+    }
+
+    .el-input {
+      position: relative;
+
+      &.input-error input {
+        border-color: #cf4444 !important;
+      }
+
+      input {
+        padding: 10px 15px;
+        border: 1px solid #dcdfe6;
+        border-radius: 4px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      &.input-error {
+        input:focus {
+          border-color: #cf4444 !important;
+        }
+      }
+    }
+
+    .error-message {
+      font-size: 12px;
+      color: #cf4444;
+      margin-top: 5px;
+    }
+  }
+}
+
+.subBtn {
+  background: #000000;
+  width: 100%;
+  color: #fff;
+}
+
+.login-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.links-row {
+  display: flex; 
+  margin-top: 20px; 
+}
+
+.link:not(:last-child) {
+  margin-right: 20px;
+}
+</style>
+
