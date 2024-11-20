@@ -13,7 +13,7 @@ const form = ref({
   email: '',
   phone: '',
   avatar: '',
-  usertype: [],
+  usertype: '',
   faculty: '',
   direction: '',
   group: ''
@@ -101,86 +101,140 @@ watch(
 
 loadFaculty();
 
+const doRegister = async () => {
+  try {
+    const payload = {
+      name: form.value.name,
+      birthdate: form.value.birthdate,
+      email: form.value.email,
+      phone: form.value.phone,
+      avatar: form.value.avatar,
+      usertype: form.value.usertype,
+      faculty: form.value.usertype === 'Student' ? form.value.faculty : null,
+      direction: form.value.usertype === 'Student' ? form.value.direction : null,
+      group: form.value.usertype === 'Student' ? form.value.group : null,
+      subject: form.value.usertype === 'Teacher' ? form.value.subject : null
+    };
+
+    const response = await axiosInstance.post('https://localhost:7055/api/user/register', payload);
+
+    // Handle successful registration
+    if (response.data.success) {
+      ElMessage({
+        message: 'Registration successful!',
+        type: 'success'
+      });
+      // Redirect or reset form if needed
+      form.value = {
+        name: '',
+        birthdate: '',
+        email: '',
+        phone: '',
+        avatar: '',
+        usertype: '',
+        faculty: '',
+        direction: '',
+        group: '',
+        subject: ''
+      };
+    } else {
+      throw new Error(response.data.message || 'Registration failed');
+    }
+  } catch (error) {
+    // Handle errors
+    ElMessage({
+      message: error.response?.data?.message || 'An error occurred during registration.',
+      type: 'error'
+    });
+  }
+};
+
+console.log(form)
 </script>
 
 
 <template>
-    <div>
-      <section class="login-section">
-        <div class="wrapper">
-          <nav>
-            <a href="javascript:;">Registration</a>
-          </nav>
-          <div class="account-box">
-            <div class="form">
-              <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
-                <el-form-item label="Name" prop="name">
-                  <el-input v-model="form.name" placeholder="Enter your name" />
+  <div>
+    <section class="login-section">
+      <div class="wrapper">
+        <nav>
+          <a href="javascript:;">Registration</a>
+        </nav>
+        <div class="account-box">
+          <div class="form">
+            <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
+              <el-form-item label="Name" prop="name">
+                <el-input v-model="form.name" placeholder="Enter your name" />
+              </el-form-item>
+              <el-form-item label="Birthdate" prop="birthdate">
+                <el-date-picker
+                  v-model="form.birthdate"
+                  type="date"
+                  placeholder="Select your birthdate"
+                  style="width: 100%;"
+                />
+              </el-form-item>
+              <el-form-item label="E-mail" prop="email">
+                <el-input v-model="form.email" placeholder="Enter your email" />
+              </el-form-item>
+              <el-form-item label="Phone" prop="phone">
+                <el-input v-model="form.phone" placeholder="Enter your phone number" />
+              </el-form-item>
+              <el-form-item label="Avatar" prop="avatar">
+                <el-input v-model="form.avatar" placeholder="Enter your avatar URL" />
+              </el-form-item>
+              <el-form-item label="User Type" prop="usertype">
+                <el-radio-group v-model="form.usertype">
+                  <el-radio label="Student">Student</el-radio>
+                  <el-radio label="Teacher">Teacher</el-radio>
+                </el-radio-group>
+              </el-form-item>
+
+              <!-- Conditional Fields for Student -->
+              <template v-if="form.usertype === 'Student'">
+                <el-form-item label="Faculty" prop="faculty">
+                  <el-select v-model="form.faculty" placeholder="Select your faculty">
+                    <el-option
+                      v-for="faculty in facultyOptions"
+                      :key="faculty.facultyId"
+                      :label="faculty.name"
+                      :value="faculty.facultyId"
+                    />
+                  </el-select>
                 </el-form-item>
-                <el-form-item label="Birthdate" prop="birthdate">
-                  <el-date-picker
-                    v-model="form.birthdate"
-                    type="date"
-                    placeholder="Select your birthdate"
-                    style="width: 100%;"
-                  />
+                <el-form-item label="Direction" prop="direction">
+                  <el-select v-model="form.direction" placeholder="Select your direction">
+                    <el-option
+                      v-for="direction in directionOptions"
+                      :key="direction.directionId"
+                      :label="direction.name"
+                      :value="direction.directionId"
+                    />
+                  </el-select>
                 </el-form-item>
-                <el-form-item label="E-mail" prop="email">
-                  <el-input v-model="form.email" placeholder="Enter your email" />
+                <el-form-item label="Group" prop="group">
+                  <el-select v-model="form.group" placeholder="Select your group">
+                    <el-option
+                      v-for="group in groupOptions"
+                      :key="group.groupId"
+                      :label="group.groupNumber"
+                      :value="group.groupId"
+                    />
+                  </el-select>
                 </el-form-item>
-                <el-form-item label="Phone" prop="phone">
-                  <el-input v-model="form.phone" placeholder="Enter your phone number" />
-                </el-form-item>
-                <el-form-item label="Avatar" prop="avatar">
-                  <el-input v-model="form.phone" placeholder="Enter your avatar url" />
-                </el-form-item>
-                <el-form-item label="User Type" prop="usertype">
-                    <el-checkbox-group v-model="form.usertype">
-                      <el-checkbox label="Student">Student</el-checkbox>
-                      <el-checkbox label="Teacher">Teacher</el-checkbox>
-                    </el-checkbox-group>
-                  </el-form-item>
-                  <el-form-item label="Faculty" prop="faculty">
-                    <el-select v-model="form.faculty" placeholder="Select your faculty">
-                      <el-option
-                        v-for="faculty in facultyOptions"
-                        :key="faculty.facultyId"
-                        :label="faculty.name"
-                        :value="faculty.facultyId"
-                        :debug="faculty"
-                      />
-                    </el-select>
-                  </el-form-item>
-                  <el-form-item label="Direction" prop="direction">
-                    <el-select v-model="form.direction" placeholder="Select your direction">
-                      <el-option
-                        v-for="direction in directionOptions"
-                        :key="direction.directionId"
-                        :label="direction.name"
-                        :value="direction.directionId"
-                      />
-                    </el-select>
-                  </el-form-item>
-                  <el-form-item label="Group" prop="group">
-                    <el-select v-model="form.group" placeholder="Select your group">
-                      <el-option
-                        v-for="group in groupOptions"
-                        :key="group.groupId"
-                        :label="group.groupNumber"
-                        :value="group.groupId"
-                      />
-                    </el-select>
-                  </el-form-item>
-                <div class="login-actions">
-                    <el-button size="large" class="subBtn" @click="doLogin">Register</el-button>
-                </div>
-              </el-form>
-            </div>
+              </template>
+
+              <div class="login-actions">
+                <el-button size="large" class="subBtn" @click="doRegister">Register</el-button>
+              </div>
+            </el-form>
           </div>
         </div>
-      </section>
-    </div>
-  </template>
+      </div>
+    </section>
+  </div>
+</template>
+
 
 <style scoped lang="scss">
 .login-section {
