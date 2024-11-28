@@ -5,6 +5,7 @@ import Layout from "@/views/Layout/index.vue"
 import AdminPage from "@/views/Admin/index.vue"
 import Directions from '@/views/Admin/direction.vue'
 import Group from '@/views/Admin/group.vue'
+import Profile from '@/views/Profile/Profile.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -34,6 +35,10 @@ const router = createRouter({
           path: "admin/faculty/direction/group",
           component: Group,
         },
+        {
+          path: "profile",
+          component: Profile
+        }
       ],
     },
   ],

@@ -11,7 +11,8 @@
   "dependencies": {
     "axios": "^1.7.7",
     "element-plus": "^2.8.8",
-    "pinia": "^2.2.6",
+    "mdb-vue-ui-kit": "^6.0.0",
+    "pinia": "^2.2.7",
     "team2-front": "file:",
     "vue": "^3.5.12",
     "vue-router": "^4.4.5"

@@ -1,4 +1,5 @@
 import '@/styles/common.scss'
+import "mdb-vue-ui-kit/css/mdb.min.css";
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
