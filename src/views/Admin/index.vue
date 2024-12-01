@@ -1,24 +1,59 @@
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { ElMessage } from "element-plus";
+import { ShowFacultyApi, AddFacultyApi } from '@/apis/Faculty';
+import { useRouter } from 'vue-router'; 
 
 // Dummy data for demonstration
-const faculties = ref([
-  { id: 1, name: "Faculty of Science" },
-  { id: 2, name: "Faculty of Arts" }
-]);
+const faculties = ref([]);
 
 const pendingUsers = ref([
   { id: 1, name: "John Doe" },
   { id: 2, name: "Jane Smith" }
 ]);
 
-// Function to add a faculty
-const addFaculty = () => {
-  ElMessage({
-    message: "Add Faculty button clicked!",
-    type: "info"
-  });
+//show faculty list
+const showFaculty = async() =>{
+  const res = await ShowFacultyApi()
+  faculties.value = res
+}
+onMounted(()=>showFaculty());
+
+const router = useRouter();
+//click faculty to edit direction
+const goToDirections = (faculty) => {
+  router.push(`/admin/faculty/direction/${faculty.facultyId}`);
+};
+
+const dialogFormVisible = ref(false)
+const formLabelWidth = '140px'
+
+const form = ref({
+  name: '',
+  buildingNumber: '',
+})
+
+// Add faculty function
+const addFaculty = async () => {
+  try {
+    await AddFacultyApi(form.value);
+    ElMessage({
+      message: "Faculty added successfully!",
+      type: "success",
+    });
+    dialogFormVisible.value = false; 
+    form.value = { 
+      name: "",
+      buildingNumber: "",
+    };
+    await showFaculty();
+  } catch (error) {
+    console.error("Error adding faculty:", error);
+    ElMessage({
+      message: "Failed to add faculty. Please try again.",
+      type: "error",
+    });
+  }
 };
 
 // Function to accept a user
@@ -73,7 +108,26 @@ const rejectUser = (user) => {
         <!-- <el-table :data="faculties" style="width: 100%">
           <el-table-column prop="name" label="Faculty Name" />
         </el-table> -->
-        <el-button type="primary" @click="addFaculty">Add Faculty</el-button>
+        <el-button type="primary" plain @click="dialogFormVisible = true">Add Faculty</el-button>
+
+        <!-- Add Faculty Dialog -->
+        <el-dialog v-model="dialogFormVisible" title="Add Faculty" width="500">
+          <el-form :model="form">
+            <el-form-item label="Name" :label-width="formLabelWidth">
+              <el-input v-model="form.name" placeholder="Please enter faculty name"/>
+            </el-form-item>
+            <el-form-item label="Building Number" :label-width="formLabelWidth">
+              <el-input v-model="form.buildingNumber" placeholder="Please enter building number"/>
+            </el-form-item>
+          </el-form>
+          <template #footer>
+            <div class="dialog-footer">
+              <el-button @click="dialogFormVisible = false">Cancel</el-button>
+              <el-button type="primary" @click="addFaculty">Confirm</el-button>
+            </div>
+          </template>
+        </el-dialog>
+
       </section>
     </main>
 
