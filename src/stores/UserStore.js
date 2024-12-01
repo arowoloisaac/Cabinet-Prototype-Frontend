@@ -1,28 +1,50 @@
-import { loginApi } from "@/apis/User";
+// stores/UserStore.js
+
+import { loginApi, getProfileApi, updateProfileApi } from "@/apis/User";
 import { defineStore } from "pinia";
-import {ref} from 'vue';
+import { ref } from 'vue';
 
-export const useUserStore = defineStore('user',()=>{
-    //1.定义管理用户数据的tsate
-    const userInfo = ref({})
+export const useUserStore = defineStore('user', () => {
+    const userInfo = ref({
+        token: null,
+        profile: {}
+    });
 
-    //2.定义获取接口数据的action函数
-    const getUserInfo = async(user)=>{
-        const res = await loginApi(user)
-        userInfo.value=res
-    }
-    //退出时清空用户信息
-    const clearUserInfo = async() =>{
-        userInfo.value = {}
-    }
+    // Action to log in and fetch the user profile
+    const getUserInfo = async (user) => {
+        const res = await loginApi(user);
+        userInfo.value.token = res.token;
+        await fetchUserProfile();
+    };
 
-    //3.以对象的格式把state和action return
-    return{
+    // Action to fetch the user profile
+    const fetchUserProfile = async () => {
+        const profile = await getProfileApi();
+        userInfo.value.profile = profile;
+    };
+
+    // Action to update the user profile
+    const updateUserProfile = async (profileData) => {
+        await updateProfileApi(profileData);
+        // Refresh the profile data after update
+        await fetchUserProfile();
+    };
+
+    // Clear user info on logout
+    const clearUserInfo = () => {
+        userInfo.value = {
+            token: null,
+            profile: {}
+        };
+    };
+
+    return {
         userInfo,
         getUserInfo,
+        fetchUserProfile,
+        updateUserProfile,
         clearUserInfo,
-    }
-},
-{
-    persist:true
-})
+    };
+}, {
+    persist: true
+});
