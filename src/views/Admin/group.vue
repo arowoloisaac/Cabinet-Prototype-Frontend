@@ -2,59 +2,122 @@
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { ElMessage } from "element-plus";
+import { ShowDirectionByIdApi } from '@/apis/Direction';
+import { ShowGroupApi, AddGroupApi, EditGroupApi, DeleteGroupApi } from "@/apis/Group";
 
 // Sample Data
-const selectedDirection = ref({ id: null, name: "" });
+const selectedDirection = ref({});
 const groups = ref([]);
-
-// Mock API calls
-const fetchGroups = async (directionId) => {
-  // Replace this with an actual API call
-  return [
-    { id: 1, groupNumber: "Group 101" },
-    { id: 2, groupNumber: "Group 102" },
-    { id: 3, groupNumber: "Group 103" }
-  ];
-};
-
-const addGroup = () => {
-  ElMessage({
-    message: "Add Group button clicked!",
-    type: "info"
-  });
-};
-
-const editGroup = (group) => {
-  ElMessage({
-    message: `Editing ${group.groupNumber}`,
-    type: "info"
-  });
-};
-
-const deleteGroup = (group) => {
-  groups.value = groups.value.filter((g) => g.id !== group.id);
-  ElMessage({
-    message: `${group.groupNumber} has been deleted.`,
-    type: "success"
-  });
-};
 
 // Route Handling
 const route = useRoute();
 
-onMounted(async () => {
-  // Get direction ID and name from route parameters
-  const directionId = route.params.directionId;
-  const directionName = route.params.directionName;
+const ShowDirectionName = async (directionId) =>{
+  const res = await ShowDirectionByIdApi(directionId);
+  selectedDirection.value = res;
 
-  selectedDirection.value = {
-    id: directionId,
-    name: directionName
-  };
+}
 
-  // Fetch groups for the direction
-  groups.value = await fetchGroups(directionId);
+const ShowGroup = async (directionId) =>{
+  const res = await ShowGroupApi(directionId);
+  groups.value = res;
+
+}
+onMounted(()=>{
+  ShowDirectionName(route.params.id)
+  ShowGroup(route.params.id)
 });
+
+const dialogFormVisible = ref(false)
+const formLabelWidth = '140px'
+
+const form = ref({
+  groupNumber: '',
+  directionId: '',
+})
+
+form.value.directionId = route.params.id; 
+
+const addGroup = async() => {
+  try {
+    await AddGroupApi(form.value);
+    ElMessage({
+      message: "group added successfully!",
+      type: "success",
+    });
+    dialogFormVisible.value = false; 
+    form.value = { 
+      groupNumber: "",
+      buildingNumber: "",
+    };
+    await ShowGroup(route.params.id);
+  } catch (error) {
+    console.error("Error adding group:", error);
+    ElMessage({
+      message: "Failed to add group. Please try again.",
+      type: "error",
+    });
+  }
+};
+
+//edit direction
+const editdialog = ref(false)
+
+const editForm = ref({
+  directionId: '',
+  groupNumber: '',
+})
+
+const handleEditClick = (row) => {
+  editdialog.value = true;
+  editForm.value = {
+    groupId: row.groupId,
+    groupNumber: row.groupNumber,
+    directionId: route.params.id,
+  };
+};
+
+const editGroup = async() => {
+  try {
+    await EditGroupApi(editForm.value.groupId, editForm.value);
+    ElMessage({
+      message: "Group edit successfully!",
+      type: "success",
+    });
+    editdialog.value = false; 
+    editForm.value = { 
+      groupNumber: '',
+      directionId: '',
+    };
+    await ShowGroup(route.params.id);
+  } catch (error) {
+    console.error("Error editing group:", error);
+    ElMessage({
+      message: "Failed to edit group. Please try again.",
+      type: "error",
+    });
+  }
+};
+
+
+//delete direction
+const deleteGroup = async(id) => {
+  try {
+    await DeleteGroupApi(id);
+    ElMessage({
+      message: "Group delete successfully!",
+      type: "success",
+    });
+    await ShowGroup(route.params.id);
+  } catch (error) {
+    console.error("Error group Direction:", error);
+    ElMessage({
+      message: "Failed to delete group. Please try again.",
+      type: "error",
+    });
+  }
+};
+
 </script>
 
 
@@ -62,7 +125,7 @@ onMounted(async () => {
   <div class="groups-page">
     <header>
       <h1>Groups under {{ selectedDirection.name }}</h1>
-      <el-button type="primary" @click="addGroup">Add Group</el-button>
+      <el-button type="primary" plain @click="dialogFormVisible = true">Add Group</el-button>
     </header>
     <section>
       <el-table :data="groups" style="width: 100%">
@@ -72,18 +135,49 @@ onMounted(async () => {
             <el-button
               size="mini"
               type="primary"
-              @click="editGroup(scope.row)"
+              @click="handleEditClick(scope.row)"
               >Edit</el-button
             >
             <el-button
               size="mini"
               type="danger"
-              @click="deleteGroup(scope.row)"
+              @click="deleteGroup(scope.row.groupId)"
               >Delete</el-button
             >
           </template>
         </el-table-column>
       </el-table>
+
+      <!-- Add Group Dialog -->
+      <el-dialog v-model="dialogFormVisible" title="Add Group" width="500">
+        <el-form :model="form">
+          <el-form-item label="GroupNumber" :label-width="formLabelWidth">
+            <el-input v-model="form.groupNumber" placeholder="Please enter group number"/>
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <div class="dialog-footer">
+            <el-button @click="dialogFormVisible = false">Cancel</el-button>
+            <el-button type="primary" @click="addGroup">Confirm</el-button>
+          </div>
+        </template>
+      </el-dialog>
+
+      <!-- Edit Group Dialog -->
+      <el-dialog v-model="editdialog" title="Edit Group" width="500">
+        <el-form :model="editForm">
+          <el-form-item label="GroupNumber" :label-width="formLabelWidth">
+            <el-input v-model="editForm.groupNumber" placeholder="Please enter direction name"/>
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <div class="dialog-footer">
+            <el-button @click="editdialog = false">Cancel</el-button>
+            <el-button type="primary" @click="editGroup">Confirm</el-button>
+          </div>
+        </template>
+      </el-dialog>
+
     </section>
   </div>
 </template>

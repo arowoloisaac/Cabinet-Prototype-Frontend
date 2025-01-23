@@ -3,6 +3,9 @@ import {ref} from 'vue';
 import router from "@/router";
 import { ElMessage } from "element-plus";
 import 'element-plus/theme-chalk/el-message.css';
+import{useUserStore} from "@/stores/UserStore";
+const userStore = useUserStore();
+
 const form = ref({
     email:'',
     password:'',
@@ -19,6 +22,20 @@ const rules = {
 }
 
 const formRef = ref(null);
+
+const doLogin = () =>{
+    formRef.value.validate(async (valid)=>{
+        if(valid){
+            const{email,password}=form.value;
+            await userStore.getUserInfo({email,password});
+            ElMessage({type:'success',message:'login success'})
+            const preLoginRoute = sessionStorage.getItem('preLoginRoute') || '/';
+            router.replace(preLoginRoute);
+            localStorage.removeItem('redirectRoute'); // Clear the saved route
+        }
+        
+    })
+}
 
 </script>
 

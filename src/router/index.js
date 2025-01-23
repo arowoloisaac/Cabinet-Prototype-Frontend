@@ -28,11 +28,11 @@ const router = createRouter({
           component: AdminPage,
         },
         {
-          path: "admin/faculty/direction",
+          path: "admin/faculty/direction/:id",
           component: Directions,
         },
         {
-          path: "admin/faculty/direction/group",
+          path: "admin/faculty/direction/group/:id",
           component: Group,
         },
         {
