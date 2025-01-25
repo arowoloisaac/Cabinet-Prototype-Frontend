@@ -6,6 +6,9 @@ import AdminPage from "@/views/Admin/index.vue"
 import Directions from '@/views/Admin/direction.vue'
 import Group from '@/views/Admin/group.vue'
 import Profile from '@/views/Profile/Profile.vue'
+import changePassword from '@/views/ChangePassword/change-password.vue'
+import CreateDiscipline from '@/views/Discipline/Create-discipline.vue'
+import DisciplineList from '@/views/Discipline/DisciplineList.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -37,8 +40,28 @@ const router = createRouter({
         },
         {
           path: "profile",
-          component: Profile
-        }
+          component: Profile,
+        },
+        {
+          path: "reset-pasword",
+          component: changePassword,
+        },
+        {
+          path: "faculty/direction/group/discipline",
+          component: DisciplineList,
+        },
+        {
+          path: "admin/faculty/direction/group/your-discipline",
+          component: CreateDiscipline,
+        },
+        {
+          path: "admin/faculty/direction/discipline/create",
+          component: CreateDiscipline,
+        },
+        {
+          path: "admin/faculty/direction/discipline/create",
+          component: CreateDiscipline,
+        },
       ],
     },
   ],
