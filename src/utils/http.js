@@ -7,7 +7,7 @@ import router from '../router';
 // 创建axios实例
 const http = axios.create({
   baseURL: "https://localhost:7055",
-  timeout: 5000,
+  timeout: 10000,
 });
 
 // axios请求拦截器

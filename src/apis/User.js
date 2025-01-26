@@ -7,3 +7,7 @@ export function loginApi(user){
 export function getTeacherListAPI(){
     return http.get('/api/user/teacher');
 }
+
+export function ForgotPasswordAPI(email) {
+    return http.post(`/api/user/forgot-password?email=${encodeURIComponent(email)}`);
+}

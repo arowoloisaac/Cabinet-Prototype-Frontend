@@ -1,20 +1,43 @@
 <script setup>
-import {ref} from 'vue';
+import { ref } from 'vue';
 import router from "@/router";
 import { ElMessage } from "element-plus";
 import 'element-plus/theme-chalk/el-message.css';
+import {ForgotPasswordAPI} from '@/apis/User'
+
 const form = ref({
-    email:'',
-})
+  email: '',
+});
 
 const rules = {
   email: [
-    {required: true, message: 'must type email',trigger: 'blur'}
+    { required: true, message: 'must type email', trigger: 'blur' },
+    { type: 'email', message: 'Please input a valid email address', trigger: 'blur' }
   ]
-}
+};
 
 const formRef = ref(null);
 
+const doResetPassword = async () => {
+  if (!formRef.value) return;
+
+  try {
+    await formRef.value.validate();
+
+    await ForgotPasswordAPI(form.value.email);
+
+    ElMessage.success('Password reset email has been sent. Please check your email.');
+  } catch (error) {
+
+    if (error.response && error.response.data && error.response.data.message) {
+      ElMessage.error(error.response.data.message);
+    } else if (error.message) {
+      ElMessage.error(error.message);
+    } else {
+      ElMessage.error('An unexpected error occurred. Please try again.');
+    }
+  }
+};
 </script>
 
 
@@ -38,7 +61,7 @@ const formRef = ref(null);
                 <el-button size="large" class="subBtn" @click="doResetPassword">Reset Password</el-button>
                 <div class="links-row">
                   <RouterLink to="/register" class="link">Regishter</RouterLink>
-                  <RouterLink to="/forgot_password" class="link">Forgot your password?</RouterLink>
+                  <RouterLink to="/login" class="link">login</RouterLink>
                 </div>
               </div>
             </el-form>
