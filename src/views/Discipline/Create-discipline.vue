@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import {getTeacherListAPI} from '@/apis/User'
 import {AddDiscipline} from '@/apis/Discipline'
+import { QuillEditor } from '@vueup/vue-quill';
 
 // 定义表单数据
 const formData = ref({
@@ -39,7 +40,7 @@ const submitForm = async () => {
       reading: formData.value.reading,
       year: formData.value.year,
       semester: formData.value.semester === 'Autumn' ? 0 : 1,
-      groupId: '93f3abbe-046d-49c5-84f1-a885b321ac95', //样式，后续需要修改
+      groupId: '56c627e4-aac8-4de5-ad13-ddb5caa9f6ed', //样式，后续需要修改
       courseTeachers: formData.value.teachers.map((teacherId) => ({
         teacherId: teacherId
       }))
@@ -61,11 +62,14 @@ onMounted(() => {
 </script>
 
 <template>
+  <div style="padding: 3%;">
+    <h2>Create Discipline</h2>
+  </div>
   <div class="create-discipline container">
     <form class="row g-3" @submit.prevent="submitForm">
       <div class="col-md-6">
         <label for="course-name" class="form-label">Course Name</label>
-        <input v-model="formData.name" class="form-control" id="course-name" />
+        <input v-model="formData.name" placeholder="course name" class="form-control" id="course-name" />
       </div>
       <div class="col-md-6">
         <label for="year" class="form-label">Year</label>
@@ -73,15 +77,17 @@ onMounted(() => {
       </div>
       <div class="col-12">
         <label for="Description" class="form-label">Description</label>
-        <textarea v-model="formData.description" placeholder="Write the description of the course here" class="form-control" id="Description" rows="3"></textarea>
+        <div style="height: 180px; padding-bottom: 5%;">
+          <QuillEditor class="form-control" v-model="formData.description" placeholder="   Write the description of the course here"  />
+        </div>
       </div>
       <div class="col-12">
         <label for="Literature" class="form-label">Literature</label>
-        <textarea v-model="formData.literature" placeholder="Write the literature about the course here" class="form-control" id="Literature" rows="2"></textarea>
+        <div style="height: 160px; padding-bottom: 5%;"><QuillEditor v-model="formData.literature" placeholder="    Write the literature about the course here" class="form-control" id="Literature"   /></div>
       </div>
       <div class="col-12">
         <label for="Reading" class="form-label">Reading</label>
-        <textarea v-model="formData.reading" placeholder="Write the reading about the course here" class="form-control" id="Reading" rows="2"></textarea>
+         <div style="height: 160px; padding-bottom: 5%;"><QuillEditor v-model="formData.reading" placeholder="    Write the reading about the course here" class="form-control" id="Reading"  /></div>
       </div>
       <div class="col-md-6">
         <label for="Semester" class="form-label">Semester</label>
