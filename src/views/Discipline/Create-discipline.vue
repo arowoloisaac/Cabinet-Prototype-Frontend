@@ -61,7 +61,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="create-discipline">
+  <div class="create-discipline container">
     <form class="row g-3" @submit.prevent="submitForm">
       <div class="col-md-6">
         <label for="course-name" class="form-label">Course Name</label>
@@ -103,3 +103,11 @@ onMounted(() => {
     </form>
   </div>
 </template>
+
+<style scoped>
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 20px;
+}
+</style>

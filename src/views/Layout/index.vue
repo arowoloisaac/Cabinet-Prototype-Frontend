@@ -18,7 +18,4 @@ import UserHeader from "@/views/Layout/components/UserHeader.vue";
   min-height: 100vh; 
 }
 
-.content-wrapper {
-  margin-left: 200px;
-}
 </style>

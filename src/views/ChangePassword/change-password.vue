@@ -79,7 +79,7 @@ const doResetPassword = async () => {
   .wrapper {
     width: 600px;
     position: absolute;
-    left: 25%;
+    left: 30%;
     top: 54px;
     transform: translate3d(100px, 0, 0);
 
