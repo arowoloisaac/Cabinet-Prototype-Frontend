@@ -28,6 +28,7 @@ const doLogin = () =>{
         if(valid){
             const{email,password}=form.value;
             await userStore.getUserInfo({email,password});
+            await userStore.getUserProfile();
             ElMessage({type:'success',message:'login success'})
             const preLoginRoute = sessionStorage.getItem('preLoginRoute') || '/';
             router.replace(preLoginRoute);

@@ -11,3 +11,11 @@ export function getTeacherListAPI(){
 export function ForgotPasswordAPI(email) {
     return http.post(`/api/user/forgot-password?email=${encodeURIComponent(email)}`);
 }
+
+export function getUserProfileAPI(){
+    return http.get('/api/user/profile');
+}
+
+export function RegisterAPI(register) {
+    return http.post('/api/user/register',register);
+}

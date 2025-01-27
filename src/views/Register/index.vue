@@ -6,9 +6,12 @@ import 'element-plus/theme-chalk/el-message.css';
 import { ShowFacultyApi } from '@/apis/Faculty';
 import { ShowGroupApi } from '@/apis/Group';
 import { ShowDirectionApi } from '@/apis/Direction';
+import { RegisterAPI } from '@/apis/User'
+import dayjs from 'dayjs';
 
 const form = ref({
-  name: '',
+  firstName: '',
+  lastName: '',
   birthdate: '',
   email: '',
   phone: '',
@@ -16,11 +19,13 @@ const form = ref({
   usertype: '',
   faculty: '',
   direction: '',
-  group: ''
+  group: '',
+  grade: ''
 });
 
 const rules = {
-  name: [{ required: true, message: 'Name is required', trigger: 'blur' }],
+  firstName: [{ required: true, message: 'Name is required', trigger: 'blur' }],
+  lastName: [{ required: true, message: 'Name is required', trigger: 'blur' }],
   birthdate: [{ required: true, message: 'Birthdate is required', trigger: 'change' }],
   email: [
     { required: true, message: 'Email is required', trigger: 'blur' },
@@ -34,7 +39,8 @@ const rules = {
   usertype: [{ required: true, message: 'User type is required', trigger: 'change' }],
   faculty: [{ required: true, message: 'Faculty is required', trigger: 'change' }],
   direction: [{ required: true, message: 'Direction is required', trigger: 'change' }],
-  group: [{ required: true, message: 'Group is required', trigger: 'change' }]
+  group: [{ required: true, message: 'Group is required', trigger: 'change' }],
+  grade: [{ required: true, message: 'Grade is required', trigger: 'change' }]
 };
 
 const formRef = ref(null);
@@ -104,29 +110,31 @@ loadFaculty();
 const doRegister = async () => {
   try {
     const payload = {
-      name: form.value.name,
-      birthdate: form.value.birthdate,
+      firstName: form.value.firstName,
+      lastName: form.value.lastName,
+      birthDate: form.value.birthdate ? dayjs(form.value.birthdate).format('YYYY-MM-DD') : '',
       email: form.value.email,
-      phone: form.value.phone,
-      avatar: form.value.avatar,
+      phoneNumber: form.value.phone,
+      profilePicture: form.value.avatar,
       usertype: form.value.usertype,
-      faculty: form.value.usertype === 'Student' ? form.value.faculty : null,
-      direction: form.value.usertype === 'Student' ? form.value.direction : null,
-      group: form.value.usertype === 'Student' ? form.value.group : null,
-      subject: form.value.usertype === 'Teacher' ? form.value.subject : null
+      studentFacultyId: form.value.usertype === 'Student' ? form.value.faculty : null,
+      studentDirectionId: form.value.usertype === 'Student' ? form.value.direction : null,
+      studentGroupId: form.value.usertype === 'Student' ? form.value.group : null,
+      studentGrade: form.value.usertype === 'Student' ? form.value.grade : null,
     };
 
-    const response = await axiosInstance.post('https://localhost:7055/api/user/register', payload);
+    console.log(payload)
+    const response = await RegisterAPI(payload);
 
     // Handle successful registration
-    if (response.data.success) {
       ElMessage({
         message: 'Registration successful!',
         type: 'success'
       });
       // Redirect or reset form if needed
       form.value = {
-        name: '',
+        firstName: '',
+        lastName: '',
         birthdate: '',
         email: '',
         phone: '',
@@ -135,11 +143,8 @@ const doRegister = async () => {
         faculty: '',
         direction: '',
         group: '',
-        subject: ''
+        grade:'',
       };
-    } else {
-      throw new Error(response.data.message || 'Registration failed');
-    }
   } catch (error) {
     // Handle errors
     ElMessage({
@@ -163,8 +168,11 @@ console.log(form)
         <div class="account-box">
           <div class="form">
             <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
-              <el-form-item label="Name" prop="name">
-                <el-input v-model="form.name" placeholder="Enter your name" />
+              <el-form-item label="FirstName" prop="firstName">
+                <el-input v-model="form.firstName" placeholder="Enter your firstname" />
+              </el-form-item>
+              <el-form-item label="LastName" prop="lastName">
+                <el-input v-model="form.lastName" placeholder="Enter your lastname" />
               </el-form-item>
               <el-form-item label="Birthdate" prop="birthdate">
                 <el-date-picker
@@ -221,6 +229,9 @@ console.log(form)
                       :value="group.groupId"
                     />
                   </el-select>
+                </el-form-item>
+                <el-form-item label="grade" prop="grade">
+                  <el-input v-model="form.grade" placeholder="Enter your grade" />
                 </el-form-item>
               </template>
 
