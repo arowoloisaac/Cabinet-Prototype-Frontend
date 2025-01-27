@@ -21,6 +21,10 @@ const router = createRouter({
       component: Layout,
       children: [
         {
+          path: "",
+          component: DisciplineList,
+        },
+        {
           path: "login",
           component: Login,
         },
@@ -52,10 +56,7 @@ const router = createRouter({
           path: "faculty/direction/group/discipline",
           component: DisciplineList,
         },
-        {
-          path: "faculty/direction/group/your-discipline",
-          component: DisciplineList,
-        },
+
         {
           path: "admin/faculty/direction/discipline/create",
           component: CreateDiscipline,

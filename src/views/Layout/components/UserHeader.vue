@@ -20,7 +20,9 @@ const logout = () => {
 const goToAdminPanel = () => {
     router.push('/admin/home');
 };
-
+const disciplineList = () => {
+  router.replace('/faculty/direction/group/discipline');
+};
 </script>
 
 <template>

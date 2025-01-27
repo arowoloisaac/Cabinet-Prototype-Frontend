@@ -2,10 +2,12 @@
 import { useUserStore } from "@/stores/UserStore";
 import { computed, ref, watch, onMounted } from "vue";
 import { StudentListDisciplineAPI, TeacherListDisciplineAPI } from "@/apis/Discipline";
+import router from "@/router/index.js";
 
 const userStore = useUserStore();
 const isTeacher = computed(() => userStore.isTeacher); // 判断是否为 Teacher
 const isStudent = computed(() => userStore.isStudent); // 判断是否为 Student
+const isAdmin = computed(() => userStore.isAdmin); // 判断是否为 Student
 
 // 所有类别列表
 const allCategories = ["Autumn", "Spring", "Own Disciplines"];
@@ -55,7 +57,9 @@ const loadDisciplines = async () => {
     console.error("Error loading disciplines:", error);
   }
 };
-
+const createDiscipline = () =>{
+  router.replace("/admin/faculty/direction/discipline/create");
+}
 // 页面初始化时设置默认类别并加载课程
 onMounted(() => {
   setDefaultCategory(); // 设置默认类别
@@ -82,7 +86,10 @@ watch(selectedCategory, loadDisciplines);
 
     <!-- 学科列表部分 -->
     <div class="discipline-list">
-      <h2>{{ selectedCategory }} Disciplines</h2>
+      <div class="flex">
+        <h2>{{ selectedCategory }} Disciplines</h2>
+        <button v-if="isAdmin" @click="createDiscipline">Create Discipline</button>
+      </div>
       <ul>
         <li v-for="discipline in disciplines" :key="discipline.courseId">
           <strong><router-link :to="`/discipline/display/${discipline.courseId}`">

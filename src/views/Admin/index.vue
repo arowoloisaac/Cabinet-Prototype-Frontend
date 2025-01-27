@@ -119,7 +119,7 @@ const rejectUser = async (user) => {
     <aside class="left-sidebar">
       <ul>
         <li><a href="#faculty">Faculty</a></li>
-        <li><a href="#manage-discipline">Manage Discipline</a></li>
+        <li><a href="/faculty/direction/group/discipline">Manage Discipline</a></li>
       </ul>
     </aside>
 
