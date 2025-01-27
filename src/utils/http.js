@@ -31,8 +31,6 @@ http.interceptors.response.use(res => res.data, e => {
     userStore.clearUserInfo(); // 清除用户信息
     ElMessage({type: 'error', message: '登录已过期，请重新登录'});
     router.push('/login');
-  } else {
-    ElMessage({type: 'error', message: e.response.message});
   }
   return Promise.reject(e);
 });

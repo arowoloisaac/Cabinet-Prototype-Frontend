@@ -65,7 +65,7 @@ const router = createRouter({
           component: CreateDiscipline,
         },
         {
-          path: "discipline/display",
+          path: "discipline/display/:id",
           component: ViewDiscipline,
         }, {
           path: "add-schedule",

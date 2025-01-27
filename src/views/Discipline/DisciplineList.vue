@@ -1,6 +1,74 @@
+<script setup>
+import { useUserStore } from "@/stores/UserStore";
+import { computed, ref, watch, onMounted } from "vue";
+import { StudentListDisciplineAPI, TeacherListDisciplineAPI } from "@/apis/Discipline";
+
+const userStore = useUserStore();
+const isTeacher = computed(() => userStore.isTeacher); // 判断是否为 Teacher
+const isStudent = computed(() => userStore.isStudent); // 判断是否为 Student
+
+// 所有类别列表
+const allCategories = ["Autumn", "Spring", "Own Disciplines"];
+const selectedCategory = ref(""); // 默认值为空
+
+// 动态过滤类别列表
+const categories = computed(() => {
+  if (isTeacher.value && isStudent.value) {
+    return allCategories; // 同时是老师和学生，显示全部
+  }
+  if (isTeacher.value) {
+    return allCategories.filter((category) => category === "Own Disciplines"); // 仅是老师
+  }
+  if (isStudent.value) {
+    return allCategories.filter((category) => category !== "Own Disciplines"); // 仅是学生
+  }
+  return [];
+});
+
+// 设置默认的类别
+const setDefaultCategory = () => {
+  if (isStudent.value && !isTeacher.value) {
+    selectedCategory.value = "Autumn";
+  } else if (isTeacher.value && !isStudent.value) {
+    selectedCategory.value = "Own Disciplines"; 
+  } else if (isTeacher.value && isStudent.value) {
+    selectedCategory.value = "Autumn";
+  }
+};
+
+// 课程数据
+const disciplines = ref([]);
+
+// 根据类别加载课程数据
+const loadDisciplines = async () => {
+  try {
+    if (isStudent.value && ["Autumn", "Spring"].includes(selectedCategory.value)) {
+      const semester = selectedCategory.value === "Autumn" ? 0 : 1; // 0: Autumn, 1: Spring
+      const response = await StudentListDisciplineAPI(semester);
+      disciplines.value = response;
+    }
+    if (isTeacher.value && selectedCategory.value === "Own Disciplines") {
+      const response = await TeacherListDisciplineAPI();
+      disciplines.value = response;
+    }
+  } catch (error) {
+    console.error("Error loading disciplines:", error);
+  }
+};
+
+// 页面初始化时设置默认类别并加载课程
+onMounted(() => {
+  setDefaultCategory(); // 设置默认类别
+  loadDisciplines(); // 加载课程数据
+});
+
+// 监听类别变化，重新加载课程数据
+watch(selectedCategory, loadDisciplines);
+</script>
+
 <template>
   <div class="discipline-page" style="padding: 2% 7% 3% 7%;">
-    <!-- Top Bar -->
+    <!-- 顶部分类栏 -->
     <div class="category-bar">
       <button
         v-for="category in categories"
@@ -12,49 +80,19 @@
       </button>
     </div>
 
-    <!-- List Section -->
+    <!-- 学科列表部分 -->
     <div class="discipline-list">
       <h2>{{ selectedCategory }} Disciplines</h2>
       <ul>
-        <li v-for="discipline in filteredDisciplines" :key="discipline.id">
-          {{ discipline.name }}
+        <li v-for="discipline in disciplines" :key="discipline.courseId">
+          <strong><router-link :to="`/discipline/display/${discipline.courseId}`">
+            {{ discipline.name }}
+          </router-link></strong>
         </li>
       </ul>
     </div>
   </div>
 </template>
-
-<script>
-export default {
-  data() {
-    return {
-      // List of categories for the bar
-      categories: ["Autumn", "Spring", "Own Disciplines"],
-
-      // The currently selected category
-      selectedCategory: "Autumn",
-
-      // Disciplines data
-      disciplines: [
-        { id: 1, name: "Mathematics", category: "Autumn" },
-        { id: 2, name: "Physics", category: "Autumn" },
-        { id: 3, name: "Biology", category: "Spring" },
-        { id: 4, name: "Chemistry", category: "Spring" },
-        { id: 5, name: "Philosophy", category: "Own Disciplines" },
-        { id: 6, name: "History", category: "Own Disciplines" },
-      ],
-    };
-  },
-  computed: {
-    // Filter disciplines based on the selected category
-    filteredDisciplines() {
-      return this.disciplines.filter(
-        (discipline) => discipline.category === this.selectedCategory
-      );
-    },
-  },
-};
-</script>
 
 <style scoped>
 /* General Page Styling */

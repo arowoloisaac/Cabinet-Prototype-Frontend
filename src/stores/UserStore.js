@@ -26,6 +26,8 @@ export const useUserStore = defineStore('user', () => {
 
     // 3. 定义计算属性
     const isAdmin = computed(() => userProfile.value?.roles?.includes('Admin'));
+    const isTeacher = computed(() => userProfile.value?.roles?.includes('Teacher'));
+    const isStudent = computed(() => userProfile.value?.roles?.includes('Student'));
 
     // 4. 以对象的格式把 state 和 action return
     return {
@@ -34,7 +36,9 @@ export const useUserStore = defineStore('user', () => {
         getUserInfo,
         getUserProfile,
         clearUserInfo,
-        isAdmin
+        isAdmin,
+        isTeacher,
+        isStudent
     };
 }, {
     persist: true // 启用持久化

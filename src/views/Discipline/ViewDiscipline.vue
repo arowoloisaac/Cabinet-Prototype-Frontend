@@ -1,58 +1,112 @@
+<script setup>
+import { ref, onMounted } from 'vue';
+import { GetDisciplineDetailApi } from '@/apis/Discipline';
+import { useRoute, useRouter } from 'vue-router';
+import { GetScheduleByCourseApi } from '@/apis/schedule';
+
+// 学科详情数据
+const disciplineDetail = ref(null);
+const scheduleDetail = ref(null);
+
+// 路由参数获取 ID（假设使用 Vue Router）
+const route = useRoute();
+const router = useRouter();
+
+// 获取学科详情的方法
+const fetchDisciplineDetail = async (id) => {
+  try {
+    const response = await GetDisciplineDetailApi(id);
+    disciplineDetail.value = response; 
+  } catch (error) {
+    console.error('Failed to fetch discipline details:', error);
+  }
+};
+
+const fetchschedule = async (id) => {
+  try {
+    const response = await GetScheduleByCourseApi(id);
+    scheduleDetail.value = response; 
+  } catch (error) {
+    console.error('Failed to fetch schedule details:', error);
+  }
+};
+
+// 返回上一页
+const goBack = () => {
+  router.push('/faculty/direction/group/discipline'); 
+};
+
+// 在组件加载时获取数据
+onMounted(() => {
+  const id = route.params.id;
+  if (id) {
+    fetchDisciplineDetail(id);
+    fetchschedule(id);
+  }
+});
+
+const getDayLabel = (classTime) => {
+  const days = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+  ];
+  return days[classTime] || "Unknown Day";
+};
+</script>
+
 <template>
-  <div class="subject-details">
+  <div class="subject-details" v-if="disciplineDetail">
     <!-- Title -->
-    <h1>Mathematics</h1>
+    <h1>{{disciplineDetail.name}}</h1>
+    <p>{{disciplineDetail.year}}</p>
 
     <!-- Description -->
-    <p>
-      Advanced mathematics course covering algebra, calculus, and geometry
-      concepts designed for higher-level education.
-    </p>
+    <h2>Description</h2>
+    <div v-html="disciplineDetail.description"></div>
 
     <!-- Literature List -->
     <h2>Literature List</h2>
-    <ul>
-      <li>Algebra by John Smith</li>
-      <li>Calculus by Jane Doe</li>
-      <li>Geometry Essentials by Emily Davis</li>
-    </ul>
+    <div v-html="disciplineDetail.literature"></div>
+
+    <!-- Reading -->
+    <h2>Reading</h2>
+    <div v-html="disciplineDetail.reading"></div>
 
     <!-- Teachers -->
     <h2>Teachers</h2>
     <ul>
-      <li>Prof. Alice Johnson</li>
-      <li>Dr. Bob Williams</li>
+      <li v-for="teacher in disciplineDetail.courseTeachers" :key="teacher.teacherId">
+        {{ teacher.firstName }} {{ teacher.lastName }}
+      </li>
     </ul>
 
     <!-- Schedule -->
     <h2>Schedule</h2>
     <ul>
-      <li>
-        <strong>Monday</strong>: First class at Building 1, Room 101
-      </li>
-      <li>
-        <strong>Wednesday</strong>: Second class at Building 2, Room 202
-      </li>
-      <li>
-        <strong>Friday</strong>: Online session (Zoom link provided)
+      <li v-for="schedule in scheduleDetail" :key="schedule.scheduleId">
+        <strong>{{ getDayLabel(schedule.classTime) }}</strong>:
+        <span v-if="schedule.format === 'Offline'">
+          Offline at {{ schedule.location }}, Room {{ schedule.classNumber }}
+        </span>
+        <span v-else>
+          Online
+        </span>
       </li>
     </ul>
 
     <!-- Back Button -->
     <button @click="goBack">Back to Discipline List</button>
   </div>
-</template>
 
-<script>
-export default {
-  methods: {
-    goBack() {
-      alert("Navigating back to the discipline list!");
-      // In dynamic setup, use this.$router.push() to navigate
-    },
-  },
-};
-</script>
+  <div v-else>
+    <p>Loading discipline details...</p>
+  </div>
+</template>
 
 <style scoped>
 /* Page Layout */

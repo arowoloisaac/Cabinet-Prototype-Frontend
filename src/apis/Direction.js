@@ -19,3 +19,7 @@ export function DeleteDirectionApi(id){
 export function ShowDirectionByIdApi(id){
     return http.get(`/api/direction/${id}`);
 }
+
+export function ShowDirectionByGroupApi(id){
+    return http.get(`/api/direction/group/${id}`);
+}

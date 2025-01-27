@@ -27,7 +27,9 @@ const goToAdminPanel = () => {
   <div>
     <header class="login-header">
       <div class="container m-top-20">
-        <h1 class="logo">Team2 Work</h1>
+        <RouterLink to="/">
+          <h1 class="logo">Team2 Work</h1>
+        </RouterLink>
         <div class="entry">
           <template v-if="isLoggedIn">
             <div class="welcome">
