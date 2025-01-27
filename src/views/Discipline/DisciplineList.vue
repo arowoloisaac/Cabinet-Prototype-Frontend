@@ -1,28 +1,36 @@
 <script setup>
 import { useUserStore } from "@/stores/UserStore";
 import { computed, ref, watch, onMounted } from "vue";
-import { StudentListDisciplineAPI, TeacherListDisciplineAPI } from "@/apis/Discipline";
-import router from "@/router/index.js";
+import { StudentListDisciplineAPI, TeacherListDisciplineAPI, AdminListDisciplineAPI } from "@/apis/Discipline";
+import { useRoute, useRouter } from 'vue-router';
+
+
+// 路由参数获取 ID（假设使用 Vue Router）
+const route = useRoute();
+const router = useRouter();
 
 const userStore = useUserStore();
 const isTeacher = computed(() => userStore.isTeacher); // 判断是否为 Teacher
 const isStudent = computed(() => userStore.isStudent); // 判断是否为 Student
-const isAdmin = computed(() => userStore.isAdmin); // 判断是否为 Student
+const isAdmin = computed(() => userStore.isAdmin); // 判断是否为 Admin
 
 // 所有类别列表
-const allCategories = ["Autumn", "Spring", "Own Disciplines"];
+const allCategories = ["Autumn", "Spring", "Own Disciplines", "All Disciplines"];
 const selectedCategory = ref(""); // 默认值为空
 
 // 动态过滤类别列表
 const categories = computed(() => {
-  if (isTeacher.value && isStudent.value) {
-    return allCategories; // 同时是老师和学生，显示全部
+  if (isTeacher.value && isStudent.value && isAdmin.value) {
+    return allCategories; 
+  }
+  if (isAdmin.value) {
+    return allCategories.filter((category) => category === "All Disciplines"); // 仅是admin
   }
   if (isTeacher.value) {
     return allCategories.filter((category) => category === "Own Disciplines"); // 仅是老师
   }
   if (isStudent.value) {
-    return allCategories.filter((category) => category !== "Own Disciplines"); // 仅是学生
+    return allCategories.filter((category) => category !== "Own Disciplines" && category !== "All Disciplines"); // 仅是学生
   }
   return [];
 });
@@ -35,6 +43,9 @@ const setDefaultCategory = () => {
     selectedCategory.value = "Own Disciplines"; 
   } else if (isTeacher.value && isStudent.value) {
     selectedCategory.value = "Autumn";
+  }else if (isAdmin.value)
+  {
+    selectedCategory.value = "All Disciplines";
   }
 };
 
@@ -53,13 +64,21 @@ const loadDisciplines = async () => {
       const response = await TeacherListDisciplineAPI();
       disciplines.value = response;
     }
+    if (isAdmin.value && selectedCategory.value === "All Disciplines") {
+      const response = await AdminListDisciplineAPI();
+      disciplines.value = response;
+    }
   } catch (error) {
     console.error("Error loading disciplines:", error);
   }
 };
 const createDiscipline = () =>{
-  router.replace("/admin/faculty/direction/discipline/create");
+  router.push("/admin/faculty/direction/discipline/create");
 }
+const createSchedule = () =>{
+  router.push("/add-schedule");
+}
+
 // 页面初始化时设置默认类别并加载课程
 onMounted(() => {
   setDefaultCategory(); // 设置默认类别
@@ -88,7 +107,8 @@ watch(selectedCategory, loadDisciplines);
     <div class="discipline-list">
       <div class="flex">
         <h2>{{ selectedCategory }} Disciplines</h2>
-        <button v-if="isAdmin" @click="createDiscipline">Create Discipline</button>
+        <el-button v-if="isAdmin" @click="createDiscipline">Create Discipline</el-button>
+        <el-button v-if="isAdmin" @click="createSchedule">Create Schedule</el-button>
       </div>
       <ul>
         <li v-for="discipline in disciplines" :key="discipline.courseId">

@@ -1,8 +1,13 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import { GetDisciplineDetailApi } from '@/apis/Discipline';
+import { computed, ref, onMounted } from 'vue';
+import { GetDisciplineDetailApi, AdminShowCourseByIdAPI, DeleteDisciplineAPI } from '@/apis/Discipline';
 import { useRoute, useRouter } from 'vue-router';
-import { GetScheduleByCourseApi } from '@/apis/schedule';
+import { GetScheduleByCourseApi, DeleteScheduleApi } from '@/apis/schedule';
+import { useUserStore } from "@/stores/UserStore";
+
+const userStore = useUserStore();
+const isAdmin = computed(() => userStore.isAdmin); // 判断是否为 Admin
+const isTeacher = computed(() => userStore.isTeacher); // 判断是否为 Student
 
 // 学科详情数据
 const disciplineDetail = ref(null);
@@ -15,8 +20,17 @@ const router = useRouter();
 // 获取学科详情的方法
 const fetchDisciplineDetail = async (id) => {
   try {
-    const response = await GetDisciplineDetailApi(id);
-    disciplineDetail.value = response; 
+    if(isAdmin.value)
+    {
+      const response = await AdminShowCourseByIdAPI(id);
+      disciplineDetail.value = response; 
+    }
+    else
+    {
+      const response = await GetDisciplineDetailApi(id);
+      disciplineDetail.value = response; 
+    }
+    
   } catch (error) {
     console.error('Failed to fetch discipline details:', error);
   }
@@ -34,6 +48,33 @@ const fetchschedule = async (id) => {
 // 返回上一页
 const goBack = () => {
   router.push('/faculty/direction/group/discipline'); 
+};
+const disid = route.params.id;
+
+const goEdit = () => {
+  router.push(`/admin/faculty/direction/discipline/edit/${disid}`); 
+};
+
+const goDelete = async () => {
+  try {
+    const response = await DeleteDisciplineAPI(disid);
+    router.replace('/faculty/direction/group/discipline'); 
+  } catch (error) {
+    console.error('Failed to fetch schedule details:', error);
+  }
+};
+
+const navigateToEditSchedule = (scheduleId) => {
+  router.push(`/edit-schedule/${scheduleId}`);
+};
+
+const deleteSchedule = async (scheduleId) => {
+  try {
+    const response = await DeleteScheduleApi(scheduleId);
+    await fetchschedule(disid);
+  } catch (error) {
+    console.error('Failed to fetch schedule details:', error);
+  }
 };
 
 // 在组件加载时获取数据
@@ -96,11 +137,20 @@ const getDayLabel = (classTime) => {
         <span v-else>
           Online
         </span>
+        <!-- 跳转链接 -->
+        <span class="edit-link" @click="navigateToEditSchedule(schedule.scheduleId)" style="margin-left: 30px">
+          <a href="javascript:void(0)">Edit</a>
+        </span>
+        <span class="edit-link" @click="deleteSchedule(schedule.scheduleId)" style="margin-left: 15px">
+          <a href="javascript:void(0)">Delete</a>
+        </span>
       </li>
     </ul>
 
     <!-- Back Button -->
     <button @click="goBack">Back to Discipline List</button>
+    <button @click="goEdit" style="margin-left: 20px" v-if="isAdmin || isTeacher">Edit Displine</button>
+    <button @click="goDelete" style="margin-left: 20px" v-if="isAdmin">Delete Displine</button>
   </div>
 
   <div v-else>

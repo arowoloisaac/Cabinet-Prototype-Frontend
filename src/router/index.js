@@ -10,7 +10,9 @@ import changePassword from '@/views/ChangePassword/change-password.vue'
 import CreateDiscipline from '@/views/Discipline/Create-discipline.vue'
 import DisciplineList from '@/views/Discipline/DisciplineList.vue'
 import ViewDiscipline from '@/views/Discipline/ViewDiscipline.vue'
+import EditDiscipline from '@/views/Discipline/EditDiscipline.vue'
 import AddSchedule from '@/views/Schedule/AddSchedule.vue'
+import EditSchedule from '@/views/Schedule/EditSchedule.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -62,15 +64,20 @@ const router = createRouter({
           component: CreateDiscipline,
         },
         {
-          path: "admin/faculty/direction/discipline/create",
-          component: CreateDiscipline,
+          path: "admin/faculty/direction/discipline/edit/:id",
+          component: EditDiscipline,
         },
         {
           path: "discipline/display/:id",
           component: ViewDiscipline,
-        }, {
+        }, 
+        {
           path: "add-schedule",
           component: AddSchedule,
+        },
+        {
+          path: "edit-schedule/:id",
+          component: EditSchedule,
         }
       ],
     },

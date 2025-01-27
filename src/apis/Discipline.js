@@ -27,3 +27,15 @@ export function ShowDisciplineByGroupApi(id){
 export function ShowCourseTeacherListAPI(id){
     return http.get(`/api/course/teacherlist/${id}`);
 }
+
+export function AdminShowCourseByIdAPI(id){
+    return http.get(`/api/course/${id}/admin`);
+}
+
+export function UpdateDisciplineAPI(id, discipline){
+    return http.put(`/api/course/${id}`, discipline);
+}
+
+export function DeleteDisciplineAPI(id){
+    return http.delete(`/api/course/${id}`);
+}
