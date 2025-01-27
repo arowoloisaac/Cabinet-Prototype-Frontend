@@ -34,9 +34,21 @@ const disciplineList = () => {
         </RouterLink>
         <div class="entry">
           <template v-if="isLoggedIn">
+<!--            <div class="welcome">-->
+<!--              <img :src="userAvatar" alt="Avatar" class="avatar" />-->
+<!--              <span>{{ userName }}</span>-->
+<!--            </div>-->
             <div class="welcome">
-              <img :src="userAvatar" alt="Avatar" class="avatar" />
-              <span>{{ userName }}</span>
+              <!-- Avatar and name link to profile -->
+              <router-link to="/profile" class="user-info">
+                <img
+                    :src="'src/assets/images/avatar.jpg'"
+                    alt="Avatar"
+                    class="avatar"
+                />
+                <span class="username">{{ userStore.userProfile.firstName }} {{ userStore.userProfile.lastName }}</span>
+              </router-link>
+
             </div>
             <button v-if="isAdmin" class="admin-panel-btn" @click="goToAdminPanel">Admin Panel</button>
             <button class="admin-panel-btn" @click="logout">Logout</button>

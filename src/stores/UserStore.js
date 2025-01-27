@@ -1,4 +1,4 @@
-import { loginApi, getUserProfileAPI } from "@/apis/User";
+import {loginApi, getUserProfileAPI, updateProfileApi} from "@/apis/User";
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 
@@ -28,7 +28,12 @@ export const useUserStore = defineStore('user', () => {
     const isAdmin = computed(() => userProfile.value?.roles?.includes('Admin'));
     const isTeacher = computed(() => userProfile.value?.roles?.includes('Teacher'));
     const isStudent = computed(() => userProfile.value?.roles?.includes('Student'));
-
+    // Action to update the user profile
+    const updateUserProfile = async (profileData) => {
+        await updateProfileApi(profileData);
+        // Refresh the profile data after update
+        await getUserProfile();
+    };
     // 4. 以对象的格式把 state 和 action return
     return {
         userInfo,
@@ -38,7 +43,8 @@ export const useUserStore = defineStore('user', () => {
         clearUserInfo,
         isAdmin,
         isTeacher,
-        isStudent
+        isStudent,
+        updateUserProfile
     };
 }, {
     persist: true // 启用持久化
