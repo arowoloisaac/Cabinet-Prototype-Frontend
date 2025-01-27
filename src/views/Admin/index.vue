@@ -3,14 +3,33 @@ import { ref, onMounted } from "vue";
 import { ElMessage } from "element-plus";
 import { ShowFacultyApi, AddFacultyApi } from '@/apis/Faculty';
 import { useRouter } from 'vue-router'; 
+import { getRegisterRequestApi, AddUserApi, DenyUserApi } from '@/apis/Admin';
 
 // Dummy data for demonstration
 const faculties = ref([]);
+const pendingUsers = ref([]); // 存储用户列表
 
-const pendingUsers = ref([
-  { id: 1, name: "John Doe" },
-  { id: 2, name: "Jane Smith" }
-]);
+// 获取用户列表
+const fetchPendingUsers = async () => {
+  try {
+    const response = await getRegisterRequestApi();
+    pendingUsers.value = response.map(user => ({
+      id: user.id,
+      name: user.email, // 使用 email 作为用户名称展示
+    }));
+  } catch (error) {
+    console.error("Error fetching pending users:", error);
+    ElMessage({
+      message: "Failed to fetch pending users.",
+      type: "error",
+    });
+  }
+};
+
+// 在组件挂载时调用
+onMounted(() => {
+  fetchPendingUsers();
+});
 
 //show faculty list
 const showFaculty = async() =>{
@@ -57,21 +76,39 @@ const addFaculty = async () => {
 };
 
 // Function to accept a user
-const acceptUser = (user) => {
-  pendingUsers.value = pendingUsers.value.filter((u) => u.id !== user.id);
-  ElMessage({
-    message: `${user.name} has been accepted.`,
-    type: "success"
-  });
+const acceptUser = async (user) => {
+  try {
+    await AddUserApi(user.id); 
+    ElMessage({
+      message: `${user.name} has been accepted.`,
+      type: "success",
+    });
+    await fetchPendingUsers();
+  } catch (error) {
+    console.error("Error accepting user:", error);
+    ElMessage({
+      message: "Failed to accept user.",
+      type: "error",
+    });
+  }
 };
 
 // Function to reject a user
-const rejectUser = (user) => {
-  pendingUsers.value = pendingUsers.value.filter((u) => u.id !== user.id);
-  ElMessage({
-    message: `${user.name} has been rejected.`,
-    type: "error"
-  });
+const rejectUser = async (user) => {
+  try {
+    await DenyUserApi(user.id); 
+    ElMessage({
+      message: `${user.name} has been rejected.`,
+      type: "success",
+    });
+    await fetchPendingUsers(); 
+  } catch (error) {
+    console.error("Error rejecting user:", error);
+    ElMessage({
+      message: "Failed to reject user.",
+      type: "error",
+    });
+  }
 };
 </script>
 
