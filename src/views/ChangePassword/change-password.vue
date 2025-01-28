@@ -60,7 +60,7 @@ const doResetPassword = async () => {
               <div class="ResetPassword-actions">
                 <el-button size="large" class="subBtn" @click="doResetPassword">Reset Password</el-button>
                 <div class="links-row">
-                  <RouterLink to="/register" class="link">Regishter</RouterLink>
+                  <RouterLink to="/register" class="link">Register</RouterLink>
                   <RouterLink to="/login" class="link">login</RouterLink>
                 </div>
               </div>
