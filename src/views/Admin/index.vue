@@ -172,7 +172,7 @@ const rejectUser = async (user) => {
     <aside class="right-sidebar">
       <h2>Pending Users</h2>
       <el-table :data="pendingUsers" style="width: 100%">
-        <el-table-column prop="name" label="Name" />
+        <el-table-column prop="name" label="Email" />
         <el-table-column label="Actions">
           <template #default="scope">
             <el-button

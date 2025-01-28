@@ -67,7 +67,7 @@ const doLogin = () =>{
               <div class="login-actions">
                 <el-button size="large" class="subBtn" @click="doLogin">Login</el-button>
                 <div class="links-row">
-                  <RouterLink to="/register" class="link">Regishter</RouterLink>
+                  <RouterLink to="/register" class="link">Register</RouterLink>
                   <RouterLink to="/reset-pasword" class="link">Forgot your password?</RouterLink>
                 </div>
               </div>
