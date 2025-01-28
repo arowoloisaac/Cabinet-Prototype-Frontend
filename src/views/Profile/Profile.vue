@@ -105,6 +105,9 @@
       <el-form-item>
         <el-button type="primary" @click="onSubmit">Save</el-button>
         <el-button @click="onReset">Reset</el-button>
+        <div class="links-row" style="margin-left: 20px;">
+          <RouterLink to="/reset-pasword" class="link">Forgot your password?</RouterLink>
+        </div>
       </el-form-item>
     </el-form>
   </div>
