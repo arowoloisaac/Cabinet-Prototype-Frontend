@@ -14,7 +14,6 @@ import { useUserStore } from "@/stores/UserStore";
 const userStore = useUserStore();
 const isAdmin = computed(() => userStore.isAdmin); // 判断是否为 Admin
 
-
 // 路由参数
 const route = useRoute();
 
@@ -85,8 +84,8 @@ const loadGroup = async (directionId) => {
 const fetchDisciplineDetail = async (id) => {
   try {
     const response = isAdmin.value
-      ? await AdminShowCourseByIdAPI(id)
-      : await GetDisciplineDetailApi(id);
+        ? await AdminShowCourseByIdAPI(id)
+        : await GetDisciplineDetailApi(id);
     formData.value = {
       id: response.courseId,
       name: response.name,
@@ -120,37 +119,37 @@ const submitForm = async () => {
         teacherId
       }))
     };
-    await UpdateDisciplineAPI(formData.value.id,payload);
-    ElMessage.success('success update displine');
+    await UpdateDisciplineAPI(formData.value.id, payload);
+    ElMessage.success('Discipline updated successfully');
   } catch (error) {
-    console.error('failed get displine:', error);
+    console.error('Failed to update discipline:', error);
   }
 };
 
 // 监听学院变化
 watch(
-  () => formData.value.faculty,
-  (newValue) => {
-    formData.value.direction = '';
-    formData.value.group = '';
-    directionOptions.value = [];
-    groupOptions.value = [];
-    if (newValue) {
-      loadDirection(newValue);
+    () => formData.value.faculty,
+    (newValue) => {
+      formData.value.direction = '';
+      formData.value.group = '';
+      directionOptions.value = [];
+      groupOptions.value = [];
+      if (newValue) {
+        loadDirection(newValue);
+      }
     }
-  }
 );
 
 // 监听方向变化
 watch(
-  () => formData.value.direction,
-  (newValue) => {
-    formData.value.group = '';
-    groupOptions.value = [];
-    if (newValue) {
-      loadGroup(newValue);
+    () => formData.value.direction,
+    (newValue) => {
+      formData.value.group = '';
+      groupOptions.value = [];
+      if (newValue) {
+        loadGroup(newValue);
+      }
     }
-  }
 );
 
 // 初始化加载数据
@@ -230,16 +229,8 @@ onMounted(() => {
         </select>
       </div>
       <div class="col-12">
-        <button type="submit" class="btn btn-primary">Create Discipline</button>
+        <button type="submit" class="btn btn-primary">Edit Discipline</button>
       </div>
     </form>
   </div>
 </template>
-
-<style scoped>
-.container {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 20px;
-}
-</style>
